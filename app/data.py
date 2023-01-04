@@ -1,9 +1,10 @@
+from os import getenv
+
+from certifi import where
+from dotenv import load_dotenv
+from MonsterLab import Monster
 from pandas import DataFrame
 from pymongo import MongoClient
-from os import getenv
-from dotenv import load_dotenv
-from certifi import where
-from MonsterLab import Monster
 
 
 class Database:
