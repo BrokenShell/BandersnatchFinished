@@ -30,6 +30,6 @@ class Machine:
     def info(self):
         output = (
             f"Base Model: {self.name}",
-            f"Timestamp: {self.timestamp.strftime('%Y-%M-%d %-I:%M:%S %p')}",
+            f"Timestamp: {self.timestamp.strftime('%Y-%m-%d %-I:%M:%S %p')}",
         )
         return "<br>".join(output)
