@@ -16,7 +16,6 @@ APP = Flask(__name__)
 def home():
     return render_template(
         "home.html",
-        sprint=f"Finished",
         monster=Monster().to_dict(),
     )
 
