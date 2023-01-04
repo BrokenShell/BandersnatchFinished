@@ -26,7 +26,7 @@ class Database:
     def dataframe(self):
         return DataFrame(self.db.find({}, {"_id": False}))
 
-    def table(self):
+    def html_table(self):
         return self.dataframe().to_html() if self.count() else None
 
 
