@@ -59,17 +59,20 @@ def model():
     db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
-    if not os.path.exists(filepath):
+    retrain = request.values.get("retrain", type=bool)
+
+    if retrain or not os.path.exists(filepath):
         df = db.dataframe()
         machine = Machine(df[options])
         machine.save(filepath)
     else:
         machine = Machine.open(filepath)
-    stats = [round(random_float(1, 250), 2) for _ in range(3)]
+
+    stats = (round(random_float(1, 250), 2) for _ in range(3))
     level = request.values.get("level", type=int) or random_int(1, 20)
-    health = request.values.get("health", type=float) or stats.pop()
-    energy = request.values.get("energy", type=float) or stats.pop()
-    sanity = request.values.get("sanity", type=float) or stats.pop()
+    health = request.values.get("health", type=float) or next(stats)
+    energy = request.values.get("energy", type=float) or next(stats)
+    sanity = request.values.get("sanity", type=float) or next(stats)
     prediction, confidence = machine(DataFrame(
         [dict(zip(options, (level, health, energy, sanity)))]
     ))
