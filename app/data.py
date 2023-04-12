@@ -1,4 +1,5 @@
 from os import getenv
+from typing import Optional
 
 from certifi import where
 from dotenv import load_dotenv
@@ -20,13 +21,13 @@ class Database:
     def reset(self):
         self.db.delete_many({})
 
-    def count(self):
+    def count(self) -> int:
         return self.db.count_documents({})
 
-    def dataframe(self):
+    def dataframe(self) -> DataFrame:
         return DataFrame(self.db.find({}, {"_id": False}))
 
-    def html_table(self):
+    def html_table(self) -> Optional[str]:
         return self.dataframe().to_html() if self.count() else None
 
 
