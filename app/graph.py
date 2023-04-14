@@ -16,7 +16,6 @@ def chart(df: DataFrame, x: str, y: str, target: str) -> Chart:
         height=440,
         background="#252525",
         padding=40,
-
     ).configure(
         legend={
             "titleColor": "#AAAAAA",
