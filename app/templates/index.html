@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Bandersnatch Project</h1>
+
+    <h3>Tech Stack</h3>
+    <ul>
+        <li>Logic: Python</li>
+        <li>Framework: FastAPI</li>
+        <li>Templates: Jinja</li>
+        <li>Structure: HTML</li>
+        <li>Styling: CSS</li>
+        <li>Database: MongoDB Atlas</li>
+        <li>Charts & Graphs: Altair</li>
+        <li>Machine Learning: Scikit-learn</li>
+    </ul>
+
+    <h4>Example Monster</h4>
+    <ul>
+        {% for k, v in monster.items() %}
+            <li>{{ k }}: {{ v }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

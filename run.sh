@@ -1,1 +1,1 @@
-gunicorn app.main:APP
+uvicorn app.main:app

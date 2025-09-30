@@ -10,7 +10,7 @@
     <h1>Bandersnatch Viewer</h1>
     <p>Monster Count: {{ count | safe }}</p>
 
-    <form method="post" action="{{ url_for('view') }}">
+    <form method="post" action="/view">
         <p><label>X-axis:
             <select name="x_axis">
                 {% for op in options %}

@@ -1,8 +1,7 @@
 altair
 certifi
-Flask
+fastapi
 Fortuna
-gunicorn
 Jinja2
 joblib
 jupyter
@@ -11,5 +10,7 @@ MonsterLab
 pandas
 pymongo[srv]
 python-dotenv
+python-multipart
 scikit-learn
 scipy
+uvicorn[standard]
