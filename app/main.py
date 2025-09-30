@@ -10,6 +10,7 @@ from app.graph import chart
 from app.machine import Machine
 
 APP = Flask(__name__)
+db = Database()
 
 
 @APP.route("/")
@@ -22,7 +23,6 @@ def home():
 
 @APP.route("/data")
 def data():
-    db = Database()
     return render_template(
         "data.html",
         count=db.count(),
@@ -32,7 +32,7 @@ def data():
 
 @APP.route("/view", methods=["GET", "POST"])
 def view():
-    db = Database()
+    # db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     x_axis = request.values.get("x_axis") or options[1]
     y_axis = request.values.get("y_axis") or options[2]
@@ -56,7 +56,7 @@ def view():
 
 @APP.route("/model", methods=["GET", "POST"])
 def model():
-    db = Database()
+    # db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
     retrain = request.values.get("retrain", type=bool)

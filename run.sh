@@ -1,1 +1,1 @@
-python3 -m gunicorn app.main:APP --preload
+gunicorn app.main:APP
