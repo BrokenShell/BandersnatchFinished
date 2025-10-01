@@ -1,6 +1,5 @@
 import os
 import time
-from datetime import timedelta
 
 from Fortuna import random_float, random_int
 from MonsterLab import Monster
@@ -47,15 +46,15 @@ async def data(request: Request):
 
 @app.get("/view")
 async def view_get(request: Request):
-    default_x_axis = options[1]
-    default_y_axis = options[2]
-    default_target = options[4]
+    x_axis = options[1]
+    y_axis = options[2]
+    target = options[4]
     df = await db.dataframe()
     graph = chart(
         df=df,
-        x=default_x_axis,
-        y=default_y_axis,
-        target=default_target,
+        x=x_axis,
+        y=y_axis,
+        target=target,
     ).to_json()
     count = len(df.index)
     return templates.TemplateResponse(
@@ -63,9 +62,9 @@ async def view_get(request: Request):
         {
             "request": request,
             "options": options,
-            "x_axis": default_x_axis,
-            "y_axis": default_y_axis,
-            "target": default_target,
+            "x_axis": x_axis,
+            "y_axis": y_axis,
+            "target": target,
             "count": count,
             "graph": graph,
         },
@@ -103,13 +102,9 @@ async def view_post(request: Request,
 async def model_get(request: Request):
     filepath = os.path.join("app", "model.joblib")
     if not os.path.exists(filepath):
-        print("Training Model...")
         df = await db.dataframe()
-        start = time.perf_counter()
         machine = Machine(df[options])
-        stop = time.perf_counter()
         machine.save(filepath)
-        print(f"Training Time: {timedelta(seconds=stop - start)}")
     else:
         machine = Machine.open(filepath)
     level = random_int(1, 20)
@@ -144,13 +139,9 @@ async def model_post(request: Request,
                      sanity: float = Form(...)):
     filepath = os.path.join("app", "model.joblib")
     if retrain == "yes" or not os.path.exists(filepath):
-        print("Training Model...")
         df = await db.dataframe()
-        start = time.perf_counter()
         machine = Machine(df[options])
-        stop = time.perf_counter()
         machine.save(filepath)
-        print(f"Training Time: {timedelta(seconds=stop - start)}")
     else:
         machine = Machine.open(filepath)
     prediction, confidence = machine(
