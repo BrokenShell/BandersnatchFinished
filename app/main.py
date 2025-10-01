@@ -1,4 +1,6 @@
 import os
+import time
+from datetime import timedelta
 
 from Fortuna import random_float, random_int
 from MonsterLab import Monster
@@ -95,9 +97,13 @@ async def view_post(request: Request,
 async def model_get(request: Request):
     filepath = os.path.join("app", "model.joblib")
     if not os.path.exists(filepath):
+        print("Training Model...")
         df = db.dataframe()
+        start = time.perf_counter()
         machine = Machine(df[options])
+        stop = time.perf_counter()
         machine.save(filepath)
+        print(f"Training Time: {timedelta(seconds=stop - start)}")
     else:
         machine = Machine.open(filepath)
     level = random_int(1, 20)
@@ -132,9 +138,13 @@ async def model_post(request: Request,
                      sanity: float = Form(...)):
     filepath = os.path.join("app", "model.joblib")
     if retrain == "yes" or not os.path.exists(filepath):
+        print("Training Model...")
         df = db.dataframe()
+        start = time.perf_counter()
         machine = Machine(df[options])
+        stop = time.perf_counter()
         machine.save(filepath)
+        print(f"Training Time: {timedelta(seconds=stop - start)}")
     else:
         machine = Machine.open(filepath)
     prediction, confidence = machine(
