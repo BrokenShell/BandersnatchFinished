@@ -1,5 +1,4 @@
 import os
-import time
 
 from Fortuna import random_float, random_int
 from MonsterLab import Monster
