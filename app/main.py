@@ -9,15 +9,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pandas import DataFrame
 
-from app.data import Database
+from app.data import Database, db_lifespan
 from app.graph import chart
 from app.machine import Machine
 
-app = FastAPI()
+app = FastAPI(lifespan=db_lifespan)
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+db = Database("Database", "Collection")
 options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
-db = Database()
 
 
 @app.get("/")
@@ -33,12 +33,14 @@ async def home(request: Request):
 
 @app.get("/data")
 async def data(request: Request):
+    count = await db.count()
+    table = await db.html_table()
     return templates.TemplateResponse(
         "data.html",
         {
             "request": request,
-            "count": db.count(),
-            "table": db.html_table(),
+            "count": count,
+            "table": table,
         },
     )
 
@@ -48,12 +50,14 @@ async def view_get(request: Request):
     default_x_axis = options[1]
     default_y_axis = options[2]
     default_target = options[4]
+    df = await db.dataframe()
     graph = chart(
-        df=db.dataframe(),
+        df=df,
         x=default_x_axis,
         y=default_y_axis,
         target=default_target,
     ).to_json()
+    count = len(df.index)
     return templates.TemplateResponse(
         "view.html",
         {
@@ -62,7 +66,7 @@ async def view_get(request: Request):
             "x_axis": default_x_axis,
             "y_axis": default_y_axis,
             "target": default_target,
-            "count": db.count(),
+            "count": count,
             "graph": graph,
         },
     )
@@ -73,12 +77,14 @@ async def view_post(request: Request,
                     x_axis: str = Form(...),
                     y_axis: str = Form(...),
                     target: str = Form(...)):
+    df = await db.dataframe()
     graph = chart(
-        df=db.dataframe(),
+        df=df,
         x=x_axis,
         y=y_axis,
         target=target,
     ).to_json()
+    count = len(df.index)
     return templates.TemplateResponse(
         "view.html",
         {
@@ -87,7 +93,7 @@ async def view_post(request: Request,
             "x_axis": x_axis,
             "y_axis": y_axis,
             "target": target,
-            "count": db.count(),
+            "count": count,
             "graph": graph,
         },
     )
@@ -98,7 +104,7 @@ async def model_get(request: Request):
     filepath = os.path.join("app", "model.joblib")
     if not os.path.exists(filepath):
         print("Training Model...")
-        df = db.dataframe()
+        df = await db.dataframe()
         start = time.perf_counter()
         machine = Machine(df[options])
         stop = time.perf_counter()
@@ -139,7 +145,7 @@ async def model_post(request: Request,
     filepath = os.path.join("app", "model.joblib")
     if retrain == "yes" or not os.path.exists(filepath):
         print("Training Model...")
-        df = db.dataframe()
+        df = await db.dataframe()
         start = time.perf_counter()
         machine = Machine(df[options])
         stop = time.perf_counter()

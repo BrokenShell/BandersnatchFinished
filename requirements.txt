@@ -8,7 +8,8 @@ jupyter
 numpy
 MonsterLab
 pandas
-pymongo[srv]
+motor
+dnspython
 python-dotenv
 python-multipart
 scikit-learn

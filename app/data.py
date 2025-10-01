@@ -1,34 +1,59 @@
 from os import getenv
 from typing import Optional
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from MonsterLab import Monster
+from fastapi import FastAPI
+from motor.motor_asyncio import AsyncIOMotorClient
 from pandas import DataFrame
-from pymongo import MongoClient
 
 
 class Database:
     load_dotenv()
-    db = MongoClient(getenv("DB_URL"))["Database"]["Collection"]
+    client = AsyncIOMotorClient(getenv("DB_URL"))
 
-    def seed(self, amount):
-        self.db.insert_many(Monster().to_dict() for _ in range(amount))
+    def __init__(self, database: str, collection: str):
+        self.collection = self.client[database][collection]
 
-    def reset(self):
-        self.db.delete_many({})
+    async def seed(self, amount: int) -> None:
+        await self.collection.insert_many([Monster().to_dict() for _ in range(amount)])
 
-    def count(self) -> int:
-        return self.db.count_documents({})
+    async def reset(self) -> None:
+        await self.collection.delete_many({})
 
-    def dataframe(self) -> DataFrame:
-        return DataFrame(self.db.find({}, {"_id": False}))
+    async def count(self) -> int:
+        return await self.collection.count_documents({})
 
-    def html_table(self) -> Optional[str]:
-        return self.dataframe().to_html() if self.count() else None
+    async def dataframe(self) -> DataFrame:
+        documents = await self.collection.find({}, {"_id": False}).to_list(None)
+        return DataFrame(documents)
+
+    async def html_table(self) -> Optional[str]:
+        df = await self.dataframe()
+        return df.to_html() if not df.empty else None
+
+    def close(self) -> None:
+        self.client.close()
 
 
-# if __name__ == '__main__':
-#     db = Database()
-#     db.reset()
-#     db.seed(1024)
-#     print(db.html_table())
+@asynccontextmanager
+async def db_lifespan(app: FastAPI):
+    db = Database("Database", "Collection")
+    try:
+        yield
+    finally:
+        db.close()
+
+
+if __name__ == '__main__':
+    import asyncio
+
+    async def main():
+        db = Database("Database", "Collection")
+        await db.reset()
+        await db.seed(1024)
+        print(await db.html_table())
+        db.close()
+
+    asyncio.run(main())
